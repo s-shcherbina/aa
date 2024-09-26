@@ -1,0 +1,13 @@
+#root {
+	width: 100vw;
+	box-sizing: border-box;
+}
+
+span {
+	-webkit-box-orient: vertical;
+	display: block;
+	display: -webkit-box;
+	overflow: hidden !important;
+	text-overflow: ellipsis;
+	-webkit-line-clamp: 4;
+}
