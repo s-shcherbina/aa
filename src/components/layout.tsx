@@ -10,7 +10,7 @@ const Layout: FC<ILayoutProps> = ({ title }): JSX.Element => {
 	const handlePopoverClose = () => setAnchorEl(null)
 	const open = Boolean(anchorEl)
 
-	const partticipantsTitle = `Participants of the movie release event "${title}"}`
+	const partticipantsTitle = `Participants of the movie release event "${title}"`
 
 	return pathname === '/event_registration' ? (
 		<Outlet />
