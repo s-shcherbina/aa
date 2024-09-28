@@ -5,37 +5,56 @@ import {
 	FormControlLabel,
 	Grid2,
 	Pagination,
+	Popover,
 	Stack,
 	Switch,
 	Typography,
 } from '@mui/material'
 import { $api } from '../utils/axios'
-import { AxiosResponse } from 'axios'
 import { IEvent, IEventProps } from '../common/types.ts'
-import { EVENTS_ON_ONE_PAGE } from '../common/consts.ts'
+import {
+	createParticipants,
+	EVENTS_ON_ONE_PAGE,
+	LABEL_SORTING,
+	sortEvents,
+	SORTING,
+} from '../common/consts.ts'
+import Radios from '../components/radios.tsx'
 
 const Events: FC<IEventProps> = ({
 	checked,
 	handleChange,
-	// setEventId,
 	setEvent,
+	pageFromApi,
 }) => {
 	const navigate = useNavigate()
-	const [eventsState, setEventsState] = useState<AxiosResponse<IEvent[]>>()
+	const [eventsState, setEventsState] = useState<IEvent[]>()
 	const [page, setPage] = useState(1)
+	const [description, setDescription] = useState('')
+	const [sort, setSort] = useState('')
+	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+
+	const handleChangeRadios = (e: ChangeEvent<HTMLInputElement>) => {
+		setSort((e.target as HTMLInputElement).value)
+	}
+
+	const handlePopoverClose = () => setAnchorEl(null)
+	const open = Boolean(anchorEl)
 
 	const fetchEvents = async () => {
 		try {
 			const response = await $api.get('api/events')
-			setEventsState(response)
+			setEventsState(response.data)
 		} catch (error) {
 			console.log(error)
 		}
 	}
 
+	createParticipants(eventsState)
+
 	useEffect(() => {
 		fetchEvents()
-	}, [page])
+	}, [pageFromApi])
 
 	return (
 		<Stack>
@@ -45,8 +64,8 @@ const Events: FC<IEventProps> = ({
 				rowSpacing={{ xs: 2, md: 4 }}
 				sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}
 			>
-				{eventsState?.data
-					.slice(
+				{sortEvents(eventsState, sort)
+					?.slice(
 						(page - 1) * EVENTS_ON_ONE_PAGE,
 						(page - 1) * EVENTS_ON_ONE_PAGE + EVENTS_ON_ONE_PAGE,
 					)
@@ -64,9 +83,34 @@ const Events: FC<IEventProps> = ({
 								</Typography>
 								<img src={`https://image.tmdb.org/t/p/w200/${item.poster}`} />
 								<Typography variant='h6'>{`Date: ${item.eventDate}`}</Typography>
-								<Typography>
+								<Typography
+									aria-owns={open ? 'mouse-over-popover' : undefined}
+									aria-haspopup='true'
+									onMouseEnter={(event: React.MouseEvent<HTMLElement>) => {
+										setAnchorEl(event.currentTarget)
+										setDescription(item.description)
+									}}
+									onMouseLeave={handlePopoverClose}
+									sx={{ cursor: 'pointer' }}
+								>
 									<span>{item.description}</span>
 								</Typography>
+								<Popover
+									id='mouse-over-popover'
+									sx={{ pointerEvents: 'none' }}
+									open={open}
+									anchorEl={anchorEl}
+									anchorOrigin={{
+										vertical: 'center',
+										horizontal: 'left',
+									}}
+									onClose={handlePopoverClose}
+									disableRestoreFocus
+								>
+									<Typography variant='h6' sx={{ p: 2, maxWidth: 260 }}>
+										{description}
+									</Typography>
+								</Popover>
 								<Typography variant='h6'>Organizer:</Typography>
 								<Typography variant='h6' sx={{ mt: -1 }} noWrap>
 									{item.organizer}
@@ -75,7 +119,6 @@ const Events: FC<IEventProps> = ({
 									<Button
 										sx={{ textTransform: 'none' }}
 										onClick={() => {
-											// setEventId(it.id)
 											setEvent(item)
 											navigate('/event_registration')
 										}}
@@ -85,7 +128,6 @@ const Events: FC<IEventProps> = ({
 									<Button
 										sx={{ textTransform: 'none' }}
 										onClick={() => {
-											// setEventId(it.id)
 											setEvent(item)
 											navigate('/participants')
 										}}
@@ -99,27 +141,48 @@ const Events: FC<IEventProps> = ({
 			</Grid2>
 			<Pagination
 				count={
-					eventsState?.data.length &&
-					Math.ceil(eventsState?.data.length / EVENTS_ON_ONE_PAGE)
+					eventsState?.length &&
+					Math.ceil(eventsState?.length / EVENTS_ON_ONE_PAGE)
 				}
 				page={page}
-				// boundaryCount={2}
 				sx={{ alignSelf: 'center', mt: 3 }}
-				onChange={(e: ChangeEvent<unknown>, value: number) => setPage(value)}
+				onChange={(e: ChangeEvent<unknown>, value: number) => {
+					setPage(value)
+					e.preventDefault()
+				}}
 			/>
-			<FormControlLabel
-				control={<Switch checked={checked} onChange={handleChange} />}
-				label={
-					checked ? (
-						<Typography variant='h6' color='primary'>
-							Stop loading
-						</Typography>
-					) : (
-						<Typography variant='h6' color='textPrimary'>
-							Load more
-						</Typography>
-					)
-				}
+			<Stack
+				spacing={2}
+				direction={{ xs: 'column', sm: 'row' }}
+				alignItems={{ xs: 'flex-start', sm: 'center' }}
+				justifyContent='space-between'
+				maxWidth={600}
+				sx={{ mt: 3 }}
+			>
+				<FormControlLabel
+					control={
+						<Switch checked={checked} color='primary' onChange={handleChange} />
+					}
+					label={
+						checked ? (
+							<Typography variant='h6'>Stop loading</Typography>
+						) : (
+							<Typography variant='h6'>Load more</Typography>
+						)
+					}
+				/>
+				<Stack direction='row' spacing={1}>
+					<Typography variant='h6'>Processed pages from API:</Typography>
+					<Typography variant='h6' color='primary'>
+						{pageFromApi ? pageFromApi : 0}
+					</Typography>
+				</Stack>
+			</Stack>
+			<Radios
+				label={LABEL_SORTING}
+				value={sort}
+				items={SORTING}
+				handleChangeRadios={handleChangeRadios}
 			/>
 		</Stack>
 	)

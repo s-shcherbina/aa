@@ -8,7 +8,11 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { $api, $movieApi } from './utils/axios'
 import { organizers } from './common/moks'
 import { IEvent, IMovieApiResponse } from './common/types.ts'
-import { FIRST_LOADING_PAGE, LAST_LOADING_PAGE } from './common/consts.ts'
+import {
+	FIRST_LOADING_PAGE,
+	index,
+	LAST_LOADING_PAGE,
+} from './common/consts.ts'
 
 let page: number
 
@@ -36,17 +40,20 @@ const App = () => {
 		try {
 			const events = load?.results
 				.filter(item => +new Date(item.release_date) - +new Date() > 0)
-				.filter(item => item.backdrop_path && item.overview.length > 100)
+				.filter(
+					item =>
+						item.backdrop_path && item.poster_path && item.overview.length > 80,
+				)
 				.map(item => {
-					const index = Math.round(Math.random() * 100)
+					const indx = index(100)
 					return {
 						title: item.title,
 						poster: item.backdrop_path,
 						description: item.overview,
 						eventDate: item.release_date,
 						image: item.poster_path,
-						organizer: organizers[index].name,
-						avatar: organizers[index].poster,
+						organizer: organizers[indx].name,
+						avatar: organizers[indx].poster,
 					}
 				}) as IEvent[]
 			if (events?.length)
@@ -75,7 +82,7 @@ const App = () => {
 					setChecked(!checked)
 				}
 				loadEvents(page)
-			}, 2000)
+			}, 5000)
 			return () => clearInterval(interval)
 		}
 	}, [checked])
@@ -95,6 +102,7 @@ const App = () => {
 								checked={checked}
 								handleChange={handleChange}
 								setEvent={setEvent}
+								pageFromApi={page}
 							/>
 						}
 					/>

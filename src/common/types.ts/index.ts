@@ -1,20 +1,4 @@
 import { ChangeEvent } from 'react'
-import { NavigateFunction } from 'react-router-dom'
-
-export interface INavigation {
-	id: number
-	navigate: NavigateFunction
-}
-
-export interface IShowData {
-	name: string
-	data: string
-	date?: string
-	poster?: string
-	organizer?: string
-	id: number
-	navigate?: NavigateFunction
-}
 
 export interface IEvent {
 	title: string
@@ -24,7 +8,7 @@ export interface IEvent {
 	organizer: string
 	avatar: string
 	image: string
-	id: number
+	id?: number
 }
 
 export interface IParticipant {
@@ -38,14 +22,13 @@ export interface IParticipant {
 
 export interface ILayoutProps {
 	title?: string
-	// 	setChecked: (value: boolean) => void
 }
 
 export interface IEventProps {
 	checked: boolean
-	handleChange: (event: ChangeEvent<HTMLInputElement>) => void
-	// setEventId: (value: number) => void
+	handleChange: (e: ChangeEvent<HTMLInputElement>) => void
 	setEvent: (value: IEvent) => void
+	pageFromApi: number
 }
 
 export interface IParticipantsProps {
@@ -68,3 +51,16 @@ export interface IMovieFromApi {
 export interface IMovieApiResponse {
 	results: IMovieFromApi[]
 }
+
+export interface IRadiosProps {
+	label: string
+	value: string
+	items: { label: string; value: string }[]
+	handleChangeRadios: (e: ChangeEvent<HTMLInputElement>) => void
+}
+
+export interface IGenerateParticipantsProps {
+	eventsState: IEvent[]
+}
+
+// DATABASE_URL="postgresql://postgres:events@localhost:5432/eventsdb" yarn start
