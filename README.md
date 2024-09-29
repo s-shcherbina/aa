@@ -1,5 +1,33 @@
 # React + TypeScript + Vite
 
+## Project setup
+
+```bash
+$ yarn
+```
+
+## Compile and run the project
+
+```bash
+# development
+$ yarn dev
+
+# production mode
+$ yarn build
+```
+
+## Description
+
+- API data is used to create events - https://developer.themoviedb.org/reference/intro/getting-started.
+
+- Every 5s a GET request receives a response from the API 1 page with 20 upcoming events (movies).
+
+- The data received from the API is processed for compliance with the parameters and stored in the DB.
+
+- After this, data with events is loaded from the database to the "Events" page and participants are generated and stored in the DB.
+
+- The application is adaptive. And to maintain design styles, text trimming is used ending `...`. When you hover over the cropped text, it is fully visible.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
@@ -15,13 +43,13 @@ If you are developing a production application, we recommend updating the config
 
 ```js
 export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
+	languageOptions: {
+		// other options...
+		parserOptions: {
+			project: ['./tsconfig.node.json', './tsconfig.app.json'],
+			tsconfigRootDir: import.meta.dirname,
+		},
+	},
 })
 ```
 
@@ -34,17 +62,17 @@ export default tseslint.config({
 import react from 'eslint-plugin-react'
 
 export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
+	// Set the react version
+	settings: { react: { version: '18.3' } },
+	plugins: {
+		// Add the react plugin
+		react,
+	},
+	rules: {
+		// other rules...
+		// Enable its recommended rules
+		...react.configs.recommended.rules,
+		...react.configs['jsx-runtime'].rules,
+	},
 })
 ```
